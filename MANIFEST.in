@@ -1,0 +1,2 @@
+include versioneer.py
+include datatracker/_version.py
