@@ -67,15 +67,20 @@ class InputFile(File):
         self['exists'] = path_exists(self['path'])
         
     def __infer_file_properties(self, tracker):
-        entry = tracker.find_entry(self['entry_tag'], self['version'])
-        file = tracker.find_file(self['entry_tag'], self['tag'], self['version'])
+        entry = tracker.get_entry(self['entry_tag'], self['version'])
+        file = tracker.get_file(self['entry_tag'], self['tag'], self['version'])
         self['version'] = entry['version']
         self['path'] = file['path']
         self['description'] = file['description']
         self['date'] = file['date']
 
 class OutputFile(File):
-    def __init__(self, **kwargs):        
+    def __init__(self, **kwargs):
+        init_dict = { p: kwargs.get(p, None) for p in [ 'tag', 'description', 'source' ] }
+        init_dict['path'] = kwargs['path']
         super(OutputFile, self).__init__(**kwargs)
         self['date'] = str(date.today())
         self['source'] = self.impute_source() if self['source'] is None else self['source']
+        if self['tag'] is None:
+            self['tag'] = 'Artifact'
+            self['description'] = 'Data artifact.'

@@ -4,6 +4,43 @@ import os
 import sys
 from logzero import logger
 
+category_template = {
+    'Preparation': [  # 'Pre-Processing'
+        'Manifest',
+        'Coverage',
+        'References',
+        'Processing'
+    ],
+    'Processing': [ # '' Quality Control (QC)
+        'Annotation',
+        'Variant QC',
+        'Sample QC',
+        'Calibration'
+    ],
+    'Post-processing': ['Migration', 'Processing of rare variant counts'],
+    'Exploration': [],
+    'Analysis': [
+        'Gene burden analysis',
+        'Gene set enrichment analysis',
+        "Permutation-based Fisher's Exact Test",
+        "Inherited analysis",
+        "De novo mutations",
+        "Weighted meta-analysis",
+        "Expression",
+        "NDDs overlap analysis",
+        "Single variant association analysis",
+        "Subset and gene plot",
+        "Browser",
+        "Gene set definition",
+        "Genetic architecture of schizophrenia",
+
+    ],
+    'Modeling': [],
+    'Evaluation': [],
+    'Visualization': [],
+    'Summary': []
+}
+
 entry_properties = {
     'init': [
         # defines entry group

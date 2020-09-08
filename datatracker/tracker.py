@@ -3,11 +3,12 @@
 import os
 import sys
 import pandas as pd
+import subprocess
 from shutil import copyfile
 from collections import Counter
 from logzero import logger
 from tinydb import TinyDB, Query
-
+from pkg_resources import parse_version
 from .dictlist import DictList
 
 class Tracker(object):
@@ -17,12 +18,13 @@ class Tracker(object):
         self.db = TinyDB(self.path)
         self.entry = Query()
 
-    def add(self, entry):
+    def save(self, entry):
         self.db.insert(entry.properties)
         #self.deduplicate()
         self.label_recent()
 
     def filter(self, cond):
+        """tr.filter(tr.entry.tag == "tag")"""
         return(self.db.search(cond))
 
     def uniq(self, property):
@@ -37,6 +39,11 @@ class Tracker(object):
             self.db.update({'most_recent': True}, ((self.entry.tag == t) & (self.entry.version == most_recent)))
             self.db.update({'most_recent': False}, ((self.entry.tag == t) & (self.entry.version != most_recent)))
 
+    def remove(self, cond):
+        """tr.remove(tr.entry.tag == "tag")"""
+        logger.info(f"Conditional for removing entries: {cond}")
+        self.db.remove(cond)
+
     def deduplicate(self):
         vtags = [ key for key, value in Counter(self['tag_version']).items() if value >= 2 ]
         for tv in vtags:
@@ -49,20 +56,59 @@ class Tracker(object):
         copyfile(self.path, path)
         return(Tracker(path))
 
-    def find_entry(self, entry_tag, version=None):
+    def get_entry(self, entry_tag, version=None):
         if version is not None:
             entry = self.filter((self.entry.tag == entry_tag) & (self.entry.version == version))[0]
         else:
             entry = self.filter((self.entry.tag == entry_tag) & (self.entry.most_recent == True))[0]
         return(entry)
 
-    def find_file(self, entry_tag, file_tag, version=None):
-        dli = self.find_entry(entry_tag, version)['output_files']
-        dli = DictList(dli)
+    def get_file(self, entry_tag, file_tag, version=None):
+        """Get File dictionary given entry tag and file tag
+
+        Parameters
+        ----------
+        entry_tag : str
+            Entry tag in database
+        file_tag : str
+            File tag identifying specific file
+        version : str, optional
+            Version string if not going by most recent, by default None
+
+        See Also
+        --------
+        get_entry, get_file_path
+
+        Examples
+        --------
+        >>>tr.get_file("entry_tag", "file_tag")
+        """
+        entry = self.get_entry(entry_tag, version)['output_files']
+        dli = DictList(entry)
         return(dli.filter_first(cond=lambda x: x['tag'] == file_tag))
 
-    def find_file_path(self, *args, **kwargs):
-        return(self.find_file(*args, **kwargs)['path'])
+    def get_file_path(self, *args, **kwargs):
+        return(self.get_file(*args, **kwargs)['path'])
+
+    def get_output_files(self, entry_tag, version=None):
+        """Get list of output files from an entry.
+
+        Parameters
+        ----------
+        entry_tag : str
+            Entry tag in database
+        version : str, optional
+            Version string if not going by most recent, by default None
+
+        See Also
+        --------
+        get_entry
+
+        Examples
+        --------
+        >>>tr.get_output_files("entry_tag")
+        """
+        return(self.get_entry(entry_tag, version)['output_files'])
 
     def update(self):
         pass
@@ -84,7 +130,6 @@ class Tracker(object):
     def table(self):
         return(pd.DataFrame.from_dict([ row for row in self.db ]))
 
-from pkg_resources import parse_version
 def sort_versions(arr):
     """Sort version tags using pkg_resource definition.
 
@@ -99,3 +144,14 @@ def sort_versions(arr):
     >>> sort_versions(versions)
     """
     return(sorted(arr, key=parse_version))
+
+def gsutil(*args):
+    cmd = [ 'gsutil' ]
+    if len(args) == 1:
+        cmd = f'{cmd[0]} {args[0]}'
+        shell = True
+    else:
+        cmd.extend(args)
+        shell = False
+    logger.info(f"Google Cloud command: {cmd}")
+    subprocess.run(cmd, shell = shell)

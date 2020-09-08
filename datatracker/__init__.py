@@ -6,3 +6,4 @@ from .tracker import Tracker
 from .entry import Entry
 from .file import InputFile, OutputFile
 from .dictlist import DictList
+from .schema import category_template
