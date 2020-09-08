@@ -4,6 +4,7 @@ import os
 import sys
 from logzero import logger
 
+<<<<<<< HEAD
 category_template = {
     'Preparation': [  # 'Pre-Processing'
         'Manifest',
@@ -41,6 +42,8 @@ category_template = {
     'Summary': []
 }
 
+=======
+>>>>>>> 491b0a7b74fa8956919d06f164fe51fe979a8520
 entry_properties = {
     'init': [
         # defines entry group
