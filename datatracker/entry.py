@@ -35,12 +35,9 @@ class Entry():
 
     def add(self, file):
         if isinstance(file, OutputFile):
-<<<<<<< HEAD
             if file['tag'] == 'Artifact':
                 file['tag'] = f"Artifact_{len(self['output_files'])}"
                 file['description'] = f"{file['description']} ({len(self['output_files'])})"
-=======
->>>>>>> 491b0a7b74fa8956919d06f164fe51fe979a8520
             self['output_files'].append(file.properties)
         elif isinstance(file, InputFile):
             self['input_files'].append(file.properties)

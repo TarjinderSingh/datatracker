@@ -1,10 +1,4 @@
 versioneer==0.18
 logzero==1.5.0
-<<<<<<< HEAD
 tinydb>=4.1.0
 pandas>0.24,<0.26
-=======
-tinydb<4.0.0
-pandas>0.24,<0.26
-#tinydb>=4.1.0
->>>>>>> 491b0a7b74fa8956919d06f164fe51fe979a8520
