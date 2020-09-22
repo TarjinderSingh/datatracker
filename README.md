@@ -20,7 +20,7 @@ pip install git+ssh://git@github.com/TarjinderSingh/datatracker
 from datatracker import *
 tr = Tracker('db.json')
 
-os.environ['VERSION'] = 0.1.0
+os.environ['VERSION'] = '0.1.0'
 
 entry = Entry(tag='filter-common-variants',
               description='Filtering common variants in new GWAS data set.',
