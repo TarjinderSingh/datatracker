@@ -20,9 +20,6 @@ install-setup: clean update-pip
 install-reqs:
 	pip install -r requirements.txt
 
-install-dev:
-	pip install --upgrade --no-deps --force-reinstall -r requirements-dev.txt
-
 freeze-reqs: install-requirements
 	pip freeze > requirements.txt
 
@@ -31,9 +28,6 @@ version:
 
 lib-version:
 	@python -c 'import $(NAME); print($(NAME).__version__)'
-
-hail-version:
-	@python -c 'import hail; print(hail.version())'
 
 # clean
 
@@ -67,32 +61,3 @@ remove-env: clean
 	( source $(CONDA_BASE)/etc/profile.d/conda.sh && \
 		conda deactivate && \
 		conda remove --name $(PROJECT_NAME) --all )
-
-install-version:
-	versioneer install
-
-# help
-
-help:
-	@echo "    install"
-	@echo "        Install package in debug mode with requirements.txt"
-	@echo "    install-full"
-	@echo "        Full install of package into environment."
-	@echo "    update-requirements"
-	@echo "        Update package requirements."
-	@echo "    clean-pyc"
-	@echo "        Remove python artifacts."
-	@echo "    clean-pyc"
-	@echo "        Remove python artifacts."
-	@echo "    clean"
-	@echo "        Remove all artifacts (Python, build, test)."
-	@echo "    clean-pyc"
-	@echo "        Remove Python artifacts."
-	@echo "    clean-build"
-	@echo "        Remove build artifacts."
-	@echo "    clean-test"
-	@echo "        Remove test artifacts."
-	@echo "    create-env"
-	@echo "        Create new Conda environment"
-	@echo "    remote-env"
-	@echo "        Run clean and remove Conda environment."
