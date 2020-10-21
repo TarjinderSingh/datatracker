@@ -7,3 +7,6 @@ from .entry import Entry
 from .file import InputFile, OutputFile
 from .dictlist import DictList
 from .schema import category_template
+
+from .file import path_exists
+from .tracker import gsutil

@@ -145,7 +145,7 @@ def sort_versions(arr):
     """
     return(sorted(arr, key=parse_version))
 
-def gsutil(*args):
+def gsutil(*args, silent=False):
     cmd = [ 'gsutil' ]
     if len(args) == 1:
         cmd = f'{cmd[0]} {args[0]}'
@@ -153,5 +153,9 @@ def gsutil(*args):
     else:
         cmd.extend(args)
         shell = False
-    logger.info(f"Google Cloud command: {cmd}")
-    subprocess.run(cmd, shell = shell)
+    p = subprocess.run(cmd, shell=shell, capture_output=True)
+    output, error = p.stdout.strip(), p.stderr.strip()
+    if not silent:
+        log_str = f"{cmd}" if error is b'' else f"{cmd}\n{error}"
+        logger.info(log_str)
+    return(output)
