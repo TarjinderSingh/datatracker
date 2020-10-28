@@ -10,6 +10,8 @@ from logzero import logger
 from tinydb import TinyDB, Query
 from pkg_resources import parse_version
 from .dictlist import DictList
+from .utils import sort_versions
+
 
 class Tracker(object):
     def __init__(self, path):
@@ -20,7 +22,7 @@ class Tracker(object):
 
     def save(self, entry):
         self.db.insert(entry.properties)
-        #self.deduplicate()
+        # self.deduplicate()
         self.label_recent()
 
     def filter(self, cond):
@@ -34,10 +36,12 @@ class Tracker(object):
         tags = self.uniq('tag')
         for t in tags:
             entries = self.filter(self.entry.tag == t)
-            versions = [ e['version'] for e in entries ]
+            versions = [e['version'] for e in entries]
             most_recent = sort_versions(versions)[-1]
-            self.db.update({'most_recent': True}, ((self.entry.tag == t) & (self.entry.version == most_recent)))
-            self.db.update({'most_recent': False}, ((self.entry.tag == t) & (self.entry.version != most_recent)))
+            self.db.update({'most_recent': True}, ((
+                self.entry.tag == t) & (self.entry.version == most_recent)))
+            self.db.update({'most_recent': False}, ((
+                self.entry.tag == t) & (self.entry.version != most_recent)))
 
     def remove(self, cond):
         """tr.remove(tr.entry.tag == "tag")"""
@@ -45,12 +49,14 @@ class Tracker(object):
         self.db.remove(cond)
 
     def deduplicate(self):
-        vtags = [ key for key, value in Counter(self['tag_version']).items() if value >= 2 ]
+        vtags = [key for key, value in Counter(
+            self['tag_version']).items() if value >= 2]
         for tv in vtags:
             entries = self.filter(self.entry.tag_version == tv)
             times = [e['time'] for e in entries]
             most_recent = sorted(times)[-1]
-            self.db.remove(((self.entry.tag_version == tv) & (self.entry.time != most_recent)))
+            self.db.remove(((self.entry.tag_version == tv) &
+                            (self.entry.time != most_recent)))
 
     def copy(self, path):
         copyfile(self.path, path)
@@ -58,9 +64,11 @@ class Tracker(object):
 
     def get_entry(self, entry_tag, version=None):
         if version is not None:
-            entry = self.filter((self.entry.tag == entry_tag) & (self.entry.version == version))[0]
+            entry = self.filter((self.entry.tag == entry_tag) & (
+                self.entry.version == version))[0]
         else:
-            entry = self.filter((self.entry.tag == entry_tag) & (self.entry.most_recent == True))[0]
+            entry = self.filter((self.entry.tag == entry_tag) & (
+                self.entry.most_recent == True))[0]
         return(entry)
 
     def get_file(self, entry_tag, file_tag, version=None):
@@ -113,6 +121,53 @@ class Tracker(object):
     def update(self):
         pass
 
+    def to_pandas(self, tag=None, most_recent=True):
+        df = pd.DataFrame.from_dict([row for row in self.db])
+        df = df.sort_values('time', ascending=False)
+        if tag:
+            df = df[df.tag == tag]
+        if most_recent:
+            df = df[df.most_recent]
+        return(df)
+
+    def explode(self, tag=None, most_recent=True):
+        df = self.to_pandas(tag, most_recent)
+
+        df = df[['tag', 'category', 'module', 'description',
+                 'version', 'input_files', 'output_files', 'most_recent', 'time']]
+
+        df0 = df.drop('output_files', axis=1).rename(
+            {'input_files': 'files'}, axis=1)
+        df1 = df.drop('input_files', axis=1).rename(
+            {'output_files': 'files'}, axis=1)
+
+        df0 = self._explode_files(df0)
+        df1 = self._explode_files(df1)
+
+        df = pd.concat([df0.assign(type='input'),
+                        df1.assign(type='output')], axis=0)
+        df = df[['tag', 'category', 'module', 'description', 'type',
+                 'file_tag', 'file_desc', 'path', 'most_recent', 'index', 'time']]
+        df = df.sort_values(['time', 'category', 'module', 'tag', 'type', 'index'], ascending=[
+                            False, True, True, True, True, True])
+        return(df)
+
+    def _explode_files(self, df):
+        df['files'] = df['files'].map(
+            lambda l: [dict(x, **{'index': i}) for i, x in enumerate(l)])
+        df = df.explode('files')
+        df = df[df.files.notnull()]
+        df['file_tag'] = df['files'].map(lambda x: x['tag'])
+        df['path'] = df['files'].map(lambda x: x['path'])
+        df['file_desc'] = df['files'].map(lambda x: x['description'])
+        df['index'] = df['files'].map(lambda x: x['index'])
+        df = df.drop('files', axis=1)
+        return(df)
+
+    def to_excel(self, path, **kwargs):
+        df = self.to_pandas(**kwargs)
+        df.to_excel(path)
+
     def kill(self):
         self.db.truncate()
 
@@ -128,34 +183,10 @@ class Tracker(object):
 
     @property
     def table(self):
-        return(pd.DataFrame.from_dict([ row for row in self.db ]))
+        return(self.to_pandas(tag=None, most_recent=False))
 
-def sort_versions(arr):
-    """Sort version tags using pkg_resource definition.
-
-    Parameters
-    ----------
-    arr : list
-
-    Examples
-    --------
-    >>> versions = ['0.1', '0.10', '0.2.1', '0.2', '0.10.1',
-            '0.1.1+0.g3c5592b.dirty', '0.1.5', '0.2', '0.2']
-    >>> sort_versions(versions)
-    """
-    return(sorted(arr, key=parse_version))
-
-def gsutil(*args, silent=False):
-    cmd = [ 'gsutil' ]
-    if len(args) == 1:
-        cmd = f'{cmd[0]} {args[0]}'
-        shell = True
-    else:
-        cmd.extend(args)
-        shell = False
-    p = subprocess.run(cmd, shell=shell, capture_output=True)
-    output, error = p.stdout.strip(), p.stderr.strip()
-    if not silent:
-        log_str = f"{cmd}" if error is b'' else f"{cmd}\n{error}"
-        logger.info(log_str)
-    return(output)
+    @property
+    def summary(self):
+        df = self.table[['tag', 'version', 'description',
+                         'category', 'module', 'date', 'time', 'most_recent']]
+        return(df.sort_values('time', ascending=False))

@@ -1,4 +1,4 @@
-# README
+# Datatracker
 
 Datatracker is a basic logging Python package that keeps track of files and code within a Project. Each script is logged as an entry and input and output datafiles are recorded in order. Datatracker is able to manage versioning of both files and scripts, and is able to identify the most up-to-date version.
 
@@ -48,6 +48,18 @@ from datatracker import *
 tr = Tracker('db.json')
 
 tr.table
+```
+
+### Pandas and Excel
+
+```python
+df = tr.explode()
+df = tr.explode('filt-plink-file')
+
+df = tr.to_pandas()
+df = tr.table
+
+df.to_excel('spreadsheet.xlsx')
 ```
 
 ## License
