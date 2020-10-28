@@ -121,11 +121,13 @@ class Tracker(object):
     def update(self):
         pass
 
-    def to_pandas(self, tag=None, most_recent=True):
+    def to_pandas(self, tag=None, module=None, most_recent=True):
         df = pd.DataFrame.from_dict([row for row in self.db])
         df = df.sort_values('time', ascending=False)
         if tag:
             df = df[df.tag == tag]
+        if module:
+            df = df[df.module == module]
         if most_recent:
             df = df[df.most_recent]
         return(df)
@@ -146,8 +148,9 @@ class Tracker(object):
 
         df = pd.concat([df0.assign(type='input'),
                         df1.assign(type='output')], axis=0)
+        df['basename'] = df['path'].apply(os.path.basename)
         df = df[['tag', 'category', 'module', 'description', 'type',
-                 'file_tag', 'file_desc', 'path', 'most_recent', 'index', 'time']]
+                 'file_tag', 'file_desc', 'basename', 'path', 'most_recent', 'index', 'time']]
         df = df.sort_values(['time', 'category', 'module', 'tag', 'type', 'index'], ascending=[
                             False, True, True, True, True, True])
         return(df)
@@ -187,6 +190,6 @@ class Tracker(object):
 
     @property
     def summary(self):
-        df = self.table[['tag', 'version', 'description',
-                         'category', 'module', 'date', 'time', 'most_recent']]
+        df = self.table[['category', 'module', 'tag', 'description',
+                         'version', 'date', 'time', 'most_recent']]
         return(df.sort_values('time', ascending=False))

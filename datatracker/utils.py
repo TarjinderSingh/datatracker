@@ -3,7 +3,9 @@
 import os
 import sys
 from logzero import logger
+import re
 import subprocess
+
 
 def gsutil(*args, silent=False):
     cmd = ['gsutil']
@@ -19,6 +21,20 @@ def gsutil(*args, silent=False):
         log_str = f"{cmd}" if error is b'' else f"{cmd}\n{error}"
         logger.info(log_str)
     return(output)
+
+
+def gs_ls(path, pattern='.mt$', trimdir=True):
+    output = gsutil(*['ls', path])
+    if re.search("\n", output):
+        output = output.split("\n")
+        if trimdir:
+            output = [re.sub('\\/$', '', o) for o in output]
+        if pattern:
+            output = [o for o in output if re.search(pattern, o)]
+        if len(output) == 1:
+            output = output[0]
+    return(output)
+
 
 def sort_versions(arr):
     """Sort version tags using pkg_resource definition.
