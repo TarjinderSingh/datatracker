@@ -5,9 +5,11 @@ import sys
 from logzero import logger
 import re
 import subprocess
+import pandas as pd
+from pkg_resources import parse_version
 
 
-def gsutil(*args, silent=False):
+def gsutil(*args, silent=True):
     cmd = ['gsutil']
     if len(args) == 1:
         cmd = f'{cmd[0]} {args[0]}'
@@ -23,7 +25,8 @@ def gsutil(*args, silent=False):
     return(output)
 
 
-def gs_ls(path, pattern='.mt$', trimdir=True):
+def gs_ls(path, pattern=None, trimdir=True):
+    """gs_ls(tr.get_file_path('rare-gtfilt-genotypes-mt', 'rare-filtered-genotypes-mt'), pattern='.mt$')"""
     output = gsutil(*['ls', path])
     if re.search("\n", output):
         output = output.split("\n")
@@ -35,6 +38,18 @@ def gs_ls(path, pattern='.mt$', trimdir=True):
             output = output[0]
     return(output)
 
+def filter_list(arr, pattern):
+    arr = [ a for a in arr if re.search(pattern, a) ]
+    if len(arr) == 1:
+        return(arr[0])
+    else:
+        return(arr)
+
+def excel_cache(df, name='summary'):
+    """outfile = excel_cache(tr.summary, 'summary'); ! open $outfile"""
+    outfile = f'{name}.xlsx'
+    df.to_excel(outfile, index=None)
+    return(outfile)
 
 def sort_versions(arr):
     """Sort version tags using pkg_resource definition.

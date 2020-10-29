@@ -8,7 +8,6 @@ from shutil import copyfile
 from collections import Counter
 from logzero import logger
 from tinydb import TinyDB, Query
-from pkg_resources import parse_version
 from .dictlist import DictList
 from .utils import sort_versions
 
@@ -22,7 +21,7 @@ class Tracker(object):
 
     def save(self, entry):
         self.db.insert(entry.properties)
-        # self.deduplicate()
+        self.deduplicate()
         self.label_recent()
 
     def filter(self, cond):
@@ -132,8 +131,8 @@ class Tracker(object):
             df = df[df.most_recent]
         return(df)
 
-    def explode(self, tag=None, most_recent=True):
-        df = self.to_pandas(tag, most_recent)
+    def explode(self, **kwargs):
+        df = self.to_pandas(**kwargs)
 
         df = df[['tag', 'category', 'module', 'description',
                  'version', 'input_files', 'output_files', 'most_recent', 'time']]

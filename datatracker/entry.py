@@ -45,7 +45,7 @@ class Entry():
             print('File not in the correct format.')
         return(file['path'])
 
-    def all(self):
+    def show(self):
         return(self.properties)
 
     def __getitem__(self, property):
@@ -54,3 +54,12 @@ class Entry():
     def __setitem__(self, index, value):
         self.properties[index] = value
 
+    def __repr__(self):
+        return(str(self.properties))
+
+    def __str__(self):
+        return(str(self.properties))
+
+    @property
+    def dict(self):
+        return(self.properties)
