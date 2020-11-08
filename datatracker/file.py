@@ -5,21 +5,7 @@ import sys
 from datetime import date
 import subprocess
 from logzero import logger
-
-def is_cloud_path(path):
-    return(path[0:3] == 'gs:')
-
-def cloud_path_exists(path):
-    return(subprocess.run([ 'gsutil', 'ls', path ], capture_output=True).stderr.decode() is '')
-
-def local_path_exists(path):
-    return(os.path.exists(os.path.realpath(os.path.expanduser(path))))
-
-def path_exists(path):
-    if is_cloud_path(path):
-        return(cloud_path_exists(path))
-    else:
-        return(local_path_exists(path))
+from .utils import is_cloud_path, path_exists
 
 class File():
     def __init__(self, tag, path, description, source=None):
@@ -42,6 +28,16 @@ class File():
     
     def __setitem__(self, index, value):
         self.properties[index] = value
+    
+    def __repr__(self):
+        return(str(self.properties))
+    
+    def __str__(self):
+        return(str(self['path']))
+    
+    @property
+    def path(self):
+        return(self['path'])
 
 class InputFile(File):
     def __init__(self, **kwargs):

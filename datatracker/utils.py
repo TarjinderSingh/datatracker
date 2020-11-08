@@ -38,18 +38,40 @@ def gs_ls(path, pattern=None, trimdir=True):
             output = output[0]
     return(output)
 
+
+def is_cloud_path(path):
+    return(path[0:3] == 'gs:')
+
+
+def cloud_path_exists(path):
+    return(subprocess.run(['gsutil', 'ls', path], capture_output=True).stderr.decode() is '')
+
+
+def local_path_exists(path):
+    return(os.path.exists(os.path.realpath(os.path.expanduser(path))))
+
+
+def path_exists(path):
+    if is_cloud_path(path):
+        return(cloud_path_exists(path))
+    else:
+        return(local_path_exists(path))
+
+
 def filter_list(arr, pattern):
-    arr = [ a for a in arr if re.search(pattern, a) ]
+    arr = [a for a in arr if re.search(pattern, a)]
     if len(arr) == 1:
         return(arr[0])
     else:
         return(arr)
+
 
 def excel_cache(df, name='summary'):
     """outfile = excel_cache(tr.summary, 'summary'); ! open $outfile"""
     outfile = f'{name}.xlsx'
     df.to_excel(outfile, index=None)
     return(outfile)
+
 
 def sort_versions(arr):
     """Sort version tags using pkg_resource definition.

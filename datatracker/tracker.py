@@ -13,9 +13,9 @@ from .utils import sort_versions
 
 
 class Tracker(object):
-    def __init__(self, path):
+    def __init__(self, path=None):
         """Constructor for class Tracker"""
-        self.path = path
+        self.path = path if path is not None else os.environ['TRACKER_PATH']
         self.db = TinyDB(self.path)
         self.entry = Query()
 
@@ -131,8 +131,8 @@ class Tracker(object):
             df = df[df.most_recent]
         return(df)
 
-    def explode(self, **kwargs):
-        df = self.to_pandas(**kwargs)
+    def explode(self, *args, **kwargs):
+        df = self.to_pandas(*args, **kwargs)
 
         df = df[['tag', 'category', 'module', 'description',
                  'version', 'input_files', 'output_files', 'most_recent', 'time']]
