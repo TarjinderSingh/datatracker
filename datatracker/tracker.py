@@ -122,6 +122,8 @@ class Tracker(object):
 
     def to_pandas(self, tag=None, module=None, most_recent=True):
         df = pd.DataFrame.from_dict([row for row in self.db])
+        if df.empty:
+            return(df)
         df = df.sort_values('time', ascending=False)
         if tag:
             df = df[df.tag == tag]
@@ -148,8 +150,8 @@ class Tracker(object):
         df = pd.concat([df0.assign(type='input'),
                         df1.assign(type='output')], axis=0)
         df['basename'] = df['path'].apply(os.path.basename)
-        df = df[['tag', 'category', 'module', 'description', 'type',
-                 'file_tag', 'file_desc', 'basename', 'path', 'most_recent', 'index', 'time']]
+        df = df[['tag', 'category', 'module', 'file_tag', 'description', 'type',
+                 'file_desc', 'basename', 'path', 'most_recent', 'index', 'time']]
         df = df.sort_values(['time', 'category', 'module', 'tag', 'type', 'index'], ascending=[
                             False, True, True, True, True, True])
         return(df)

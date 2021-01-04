@@ -18,13 +18,15 @@ pip install git+ssh://git@github.com/TarjinderSingh/datatracker
 
 ```python
 from datatracker import *
-tr = Tracker('db.json')
+tr = Tracker()
 
 os.environ['VERSION'] = '0.1.0'
 
 entry = Entry(tag='filter-common-variants',
               description='Filtering common variants in new GWAS data set.',
               category='Processing',
+
+              
               module='Variant QC')
 
 infile = entry.add(
@@ -48,6 +50,12 @@ from datatracker import *
 tr = Tracker('db.json')
 
 tr.table
+```
+
+### Use existing entries for pipeline
+
+```python
+infile = entry.add(InputFile(entry_tag='filter-common-variants', tag='raw-plink-file', database=tr))
 ```
 
 ### Pandas and Excel
