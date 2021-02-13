@@ -43,7 +43,7 @@ class InputFile(File):
     def __init__(self, **kwargs):
         init_dict = { p: kwargs.get(p, None) for p in [ 'path', 'description', 'source' ] }
         init_dict['tag'] = kwargs['tag']
-        super(InputFile, self).__init__(**init_dict)
+        super().__init__(**init_dict)
         self['entry_tag'] = kwargs.get('entry_tag', None)
         self['version'] = kwargs.get('version', None)
         tracker = kwargs.get('database', None)
@@ -74,9 +74,9 @@ class OutputFile(File):
     def __init__(self, **kwargs):
         init_dict = { p: kwargs.get(p, None) for p in [ 'tag', 'description', 'source' ] }
         init_dict['path'] = kwargs['path']
-        super(OutputFile, self).__init__(**kwargs)
+        super().__init__(**init_dict)
         self['date'] = str(date.today())
         self['source'] = self.impute_source() if self['source'] is None else self['source']
         if self['tag'] is None:
             self['tag'] = 'Artifact'
-            self['description'] = 'Data artifact.'
+            self['description'] = 'Data artifact'

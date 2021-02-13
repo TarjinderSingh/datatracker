@@ -70,6 +70,12 @@ df = tr.table
 df.to_excel('spreadsheet.xlsx')
 ```
 
+## Data artifacts
+
+```python
+infile = entry.add(InputFile(path='gs://checkpoint-cache/tmp/1.bed'))
+```
+
 ## License
 
 MIT License (see repository)

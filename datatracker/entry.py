@@ -30,7 +30,7 @@ class Entry():
         if 'VERSION' in os.environ:
             version = os.environ['VERSION']
         else:
-            version = subprocess.run(['git', 'describe'], capture_output=True).stdout.strip()
+            version = subprocess.run(['git', 'describe'], capture_output=True).stdout.strip().decode()
         return(version)
 
     def add(self, file):
