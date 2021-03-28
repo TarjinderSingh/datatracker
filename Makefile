@@ -9,7 +9,7 @@ CONDA_BASE:=$(shell conda info --base)
 # install
 
 update-pip:
-	pip install -U pip setuptools wheel
+	pip install -U setuptools wheel twine
 
 install: clean update-pip
 	pip install -e .
@@ -51,6 +51,18 @@ clean-test:
 	rm -fr .tox/
 	rm -f .coverage
 	rm -fr htmlcov/
+
+# build
+
+build: clean-py
+	python setup.py sdist bdist_wheel
+	twine check dist/*
+
+upload-test:
+	twine upload --repository testpypi dist/*
+
+upload:
+	twine upload dist/*
 
 # env
 

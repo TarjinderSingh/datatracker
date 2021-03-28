@@ -6,9 +6,6 @@ import versioneer
 with open('README.md') as f:
     readme = f.read()
 
-with open('LICENSE.md') as f:
-    license = f.read()
-
 dependencies = []
 with open('requirements.txt', 'r') as f:
     for line in f:
@@ -20,11 +17,12 @@ setup(
     cmdclass=versioneer.get_cmdclass(),
     description='Methods to help track the scripts and datafiles in a project.',
     long_description=readme,
+    long_description_content_type='text/markdown',
     author='TarjinderSingh',
-    author_email='',
+    author_email='tsingh@broadinstitute.org',
     url='https://github.com/TarjinderSingh/datatracker',
-    license=license,
-    python_requires=">=3.7",
+    license='MIT',
+    python_requires='>=3.7',
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=dependencies
 )

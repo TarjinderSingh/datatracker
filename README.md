@@ -25,8 +25,6 @@ os.environ['VERSION'] = '0.1.0'
 entry = Entry(tag='filter-common-variants',
               description='Filtering common variants in new GWAS data set.',
               category='Processing',
-
-              
               module='Variant QC')
 
 infile = entry.add(
@@ -47,7 +45,7 @@ tr.save(entry)
 
 ```python
 from datatracker import *
-tr = Tracker('db.json')
+tr = Tracker()
 
 tr.table
 ```
@@ -56,6 +54,16 @@ tr.table
 
 ```python
 infile = entry.add(InputFile(entry_tag='filter-common-variants', tag='raw-plink-file', database=tr))
+```
+
+### Filter and remove
+
+```python
+# filter to entry
+tr.filter(tr.entry.tag_version == 'import-array_0.1.6')
+
+# remove entry
+tr.remove(tr.entry.tag_version == 'import-array_0.1.6')
 ```
 
 ### Pandas and Excel
