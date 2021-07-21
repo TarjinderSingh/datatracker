@@ -100,7 +100,7 @@ def sort_versions(arr):
     return(sorted(arr, key=parse_version))
 
 
-def submit_dataproc(cluster_name : str, script_path : str, pyfiles_list : List[str], silent : bool = False, **kwargs):
+def submit_dataproc(cluster_name : str, script_path : str, pyfiles_list : list, silent : bool = False, **kwargs):
     """Submit job to Google dataproc cluster
 
     Parameters
