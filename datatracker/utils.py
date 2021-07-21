@@ -9,8 +9,10 @@ import pandas as pd
 from pkg_resources import parse_version
 
 
-def gsutil(*args, silent=True):
+def gsutil(*args, silent=True, debug=False):
     cmd = ['gsutil']
+    if debug:
+        print(args)
     if len(args) == 1:
         cmd = f'{cmd[0]} {args[0]}'
         shell = True
@@ -36,6 +38,15 @@ def gs_ls(path, pattern=None, trimdir=True):
             output = [o for o in output if re.search(pattern, o)]
         if len(output) == 1:
             output = output[0]
+    return(output)
+
+
+def gs_rm(path, recursive=True, silent=True):
+    args = ['-m', 'rm']
+    if recursive:
+        args.append('-r')
+    args.append(path)
+    output = gsutil(*args, silent=silent)
     return(output)
 
 
@@ -87,3 +98,37 @@ def sort_versions(arr):
     >>> sort_versions(versions)
     """
     return(sorted(arr, key=parse_version))
+
+
+def submit_dataproc(cluster_name : str, script_path : str, pyfiles_list : List[str], silent : bool = False, **kwargs):
+    """Submit job to Google dataproc cluster
+
+    Parameters
+    ----------
+    cluster_name : str
+        Name of Google dataproc cluster
+    script_path : str
+        Path to script to be submitted
+    pyfiles_list : List[str]
+        A list of directories to be zipped and loaded onto cluster
+    silent : bool, optional
+        Print string if True, by default False
+
+    Examples
+    --------
+    >>> submit_dataproc(
+            cluster_name='cluster04',
+            script_path='case-control.py',
+            py_files_list=[here('ukbexomes'), '/hlscore/hlscore'],
+            silent=False,
+            outfile=outfile)
+    """
+
+    cmd = f"hailctl dataproc submit {cluster_name} {script_path}"
+    cmd += f" --pyfiles={','.join(pyfiles_list)}"
+    if kwargs:
+        cmd += "".join([ f" --{k} {v}" for k, v in kwargs.items() ])
+    if silent:
+        logger.info(f'Dataproc submit command: {cmd}')
+    else:
+        os.system(cmd)

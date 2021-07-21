@@ -16,6 +16,18 @@ pip install git+ssh://git@github.com/TarjinderSingh/datatracker
 
 ### New entries
 
+For an entry,
+
+1. `tag` is a unique identifier to  the script in question and should be clear what the general purpose and output of the script is. (ie Merge is not what we want to see here)
+2. `description` needs to be one or two sentences equivalent of the Git commit message that thoroughly describes the general purpose and output of the script.
+3. `category` indicates the general step of analysis the script belongs to.
+4. `module` is the sub-category for which the script belongs to. Type `category_template` in interactive Python for an idea of the appropriate categories and modules are.
+
+For a InputFile or OutputFile,
+
+1. `tag` is a unique identifier to the File in question and should be clear what the general purpose and output of the script is. (ie Merge is not what we want to see here).
+2. `description` for a file is a one or two sentences equivalent of the Git commit message that thoroughly describe the general purposes of the File at hand.
+
 ```python
 from datatracker import *
 tr = Tracker()
