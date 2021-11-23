@@ -50,6 +50,60 @@ def gs_rm(path, recursive=True, silent=True):
     return(output)
 
 
+def gs_mirror(path, dest_bucket, recursive=True, silent=True, debug=False):
+    """Mirror nested directories in one bucket to another.
+
+    Parameters
+    ----------
+    path : str
+        Full path to a local directory or Cloud bucket
+    dest_bucket : str
+        Full path to Cloud bucket
+    recursive : bool, optional
+        Recursively copy files from the source directory, by default True
+    silent : bool, optional
+        Print errors or log file from gsutil, by default True
+    debug : bool, optional
+        Print arguments from the gsutil command, by default False
+
+    Examples
+    --------
+    >>> gs_mirror('gs://super-psychosis/data/resources/1.0_hl_log-resources',  'gs://superpheno/', silent=False, debug=True)
+    """
+    args = ['-m', 'cp']
+    if recursive:
+        args.append('-r')
+    args.append(path)
+    args.append(os.path.join(dest_bucket, re.search('gs\:\/\/.*?\/(.*)', path).group(1)))
+    output = gsutil(*args, silent=silent, debug=debug)
+    return(output)
+
+
+def copy_resources_local(infile, outfile, run=True):
+    """Copy file paths locally between two directories on your machine.
+
+    Parameters
+    ----------
+    infile : str
+        source file path
+    outfile : str
+        output file path
+    run : bool, optional
+        actually run or dry run, by default True
+
+    Examples
+    --------
+    >>> relpath = relpath(os.path.join(localdir, 'gnomad.v2.1.1.lof_metrics.by_gene.tsv'))
+    >>> copy_resources_local(infile, here(relpath, local=True))
+    """
+    
+    if run:
+        os.makedirs(os.path.dirname(outfile), exist_ok=True)
+        p = subprocess.run(['cp', infile, outfile], capture_output=True)
+        output, error = p.stdout.decode().strip(), p.stderr.decode().strip()
+        print(output, error)
+
+
 def is_cloud_path(path):
     return(path[0:3] == 'gs:')
 
