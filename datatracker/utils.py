@@ -79,6 +79,22 @@ def gs_mirror(path, dest_bucket, recursive=True, silent=True, debug=False):
     return(output)
 
 
+def gs_view(cloudir):
+    subprocess.call(
+        ['open', 'https://console.cloud.google.com/storage/browser/' + re.sub('gs://', '', cloudir)])
+
+
+def sync_down(cloudir, localdir, ext='log', flag=''):
+    subprocess.call(['mkdir', '-p', localdir])
+    cmd = ['gsutil', '-m', 'cp',
+           f'-r{flag}',
+           f'{cloudir}/*.{ext}',
+           localdir]
+    p = subprocess.run(cmd, capture_output=True)
+    output, error = p.stdout.decode().strip(), p.stderr.decode().strip()
+    return(error)
+
+
 def copy_resources_local(infile, outfile, run=True):
     """Copy file paths locally between two directories on your machine.
 
