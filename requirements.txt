@@ -4,3 +4,5 @@ logzero==1.5.0
 tinydb>=4.1.0
 pandas>=1.0.0
 openpyxl==3.0.5
+nest_asyncio
+hail>=0.2.85
