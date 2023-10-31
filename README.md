@@ -1,29 +1,37 @@
 # Datatracker
 
-Datatracker is a basic logging Python package that keeps track of files and code within a Project. Each script is logged as an entry and input and output datafiles are recorded in order. Datatracker is able to manage versioning of both files and scripts, and is able to identify the most up-to-date version.
-
-At the moment, this Python package is still in alpha, and I may include changes to both UI and file format that may be breaking.
+Datatracker is a Python package designed for logging and tracking files and code within a project. It logs each script as an entry and records input and output data files in sequence. Datatracker also manages versioning of files and scripts, identifying the most recent version.
 
 ## Installation
 
-To install, run the following command:
+Install Datatracker using pip:
+
+```bash
+pip install -U datatracker
+```
+
+Or, install directly from Github:
 
 ```bash
 pip install git+ssh://git@github.com/TarjinderSingh/datatracker
 ```
 
-## Usage
+## Learning from Templates
+
+To understand how to use Datatracker, refer to the template scripts in this repository. These scripts demonstrate the various features of Datatracker. For instance, view the header.py scriptt [here](https://github.com/TarjinderSingh/datatracker/blob/master/template/header.py).
+
+## Syntax and explanation
 
 ### New entries
 
-For an entry,
+Each script you run is an "entry". An entry requires a tag, description, category, and module.
 
 1. `tag` is a unique identifier to  the script in question and should be clear what the general purpose and output of the script is. (ie Merge is not what we want to see here)
 2. `description` needs to be one or two sentences equivalent of the Git commit message that thoroughly describes the general purpose and output of the script.
 3. `category` indicates the general step of analysis the script belongs to.
 4. `module` is the sub-category for which the script belongs to. Type `category_template` in interactive Python for an idea of the appropriate categories and modules are.
 
-For a InputFile or OutputFile,
+Within an entry, you define InputFiles and OutputFiles:
 
 1. `tag` is a unique identifier to the File in question and should be clear what the general purpose and output of the script is. (ie Merge is not what we want to see here).
 2. `description` for a file is a one or two sentences equivalent of the Git commit message that thoroughly describe the general purposes of the File at hand.
@@ -53,7 +61,7 @@ outfile = entry.add(
 tr.save(entry)
 ```
 
-### View existing entries
+### Viewing Existing Entries=
 
 ```python
 from datatracker import *
@@ -62,13 +70,13 @@ tr = Tracker()
 tr.table
 ```
 
-### Use existing entries for pipeline
+### Using Existing Entries for Pipeline
 
 ```python
 infile = entry.add(InputFile(entry_tag='filter-common-variants', tag='raw-plink-file', database=tr))
 ```
 
-### Filter and remove
+### Filtering and Removing Entries
 
 ```python
 # filter to entry
@@ -78,7 +86,7 @@ tr.filter(tr.entry.tag_version == 'import-array_0.1.6')
 tr.remove(tr.entry.tag_version == 'import-array_0.1.6')
 ```
 
-### Pandas and Excel
+### Exporting to Pandas and Excel
 
 ```python
 df = tr.explode()
@@ -102,4 +110,4 @@ MIT License (see repository)
 
 ## Maintainer
 
-[TJ Singh @ tsingh@broadinstitute.org](tsingh@broadinstitute.org)
+[TJ Singh @ CUIMC](tsingh@nygenome.org)
